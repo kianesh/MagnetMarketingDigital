@@ -1,0 +1,66 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+<script>
+let filings = [];
+let magnet;
+
+function setup() {
+  let canvas = createCanvas(600, 400);
+  canvas.parent('p5-container'); // Attach canvas to Elementor container
+  magnet = createVector(width / 2, height / 2);
+
+  // Generate iron filings (particles)
+  for (let i = 0; i < 500; i++) {
+    filings.push(new IronFiling(random(width), random(height)));
+  }
+}
+
+function draw() {
+  background(240);
+
+  // Draw magnet
+  fill(255, 0, 0);
+  ellipse(magnet.x, magnet.y, 20, 20);
+
+  // Update and display filings
+  for (let f of filings) {
+    f.attract(magnet);
+    f.update();
+    f.show();
+  }
+}
+
+// Iron Filing (Particle) class
+class IronFiling {
+  constructor(x, y) {
+    this.pos = createVector(x, y);
+    this.vel = createVector(0, 0);
+  }
+
+  attract(target) {
+    let force = p5.Vector.sub(target, this.pos);
+    let distance = constrain(force.mag(), 10, 100); // Prevent extreme forces
+    force.setMag(10 / (distance * distance)); // Inverse square law
+    this.vel.add(force);
+    this.vel.limit(2); // Limit speed
+  }
+
+  update() {
+    this.pos.add(this.vel);
+    this.vel.mult(0.95); // Friction effect
+  }
+
+  show() {
+    fill(50);
+    noStroke();
+    ellipse(this.pos.x, this.pos.y, 3, 3);
+  }
+}
+
+// Move magnet with mouse
+function mouseDragged() {
+  magnet.set(mouseX, mouseY);
+}
+</script>
+
+<!-- Placeholder for the p5.js canvas -->
+<div id="p5-container"></div>
